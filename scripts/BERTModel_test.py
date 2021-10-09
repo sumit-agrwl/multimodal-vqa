@@ -114,13 +114,6 @@ if __name__ == "__main__":
 
     # sorted_answer_distribution = dict(sorted(answer_distribution.items(), key=lambda item: item[1], reverse=True))
 
-
-
-    
-
-    # parse through all keys and record the questions
-    # keys = list(raw_data.keys())
-
     # models:
     # bert-base-uncased
     # roberta-base
@@ -168,9 +161,6 @@ if __name__ == "__main__":
 
     totFeatureArr = totFeatureArr[1:,:]
 
-    # # use PCA to reduce dimensionality of vectors to 2
-    # pca = PCA(n_components=2)
-    # pca.fit(totFeatureArr.cpu().detach().numpy())
     m = TSNE(learning_rate = 40)
     tsne_features = m.fit_transform(totFeatureArr.numpy())
     tsne_x = tsne_features[:,0]
