@@ -2,10 +2,13 @@ import sys
 import os
 import numpy as np
 
-# from sklearn.decomposition import PCA
+from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
+from sklearn.cluster import KMeans
 import seaborn as sns
 import matplotlib.pyplot as plt
+import pandas as pd
+
 
 
 from transformers import pipeline
@@ -57,37 +60,57 @@ if __name__ == "__main__":
     currDir = os.getcwd()
     path_parent = os.chdir(os.path.dirname(os.getcwd()))
     print(os.getcwd())
-    default_train_dir = os.path.join(os.getcwd(),'gqa','questions1.2','challenge_balanced_questions.json')
-    # # open the json file
-    # with open(default_train_dir) as f:
-    #     raw_data = json.load(f)
 
-    subset_dir = os.path.join(os.getcwd(),'gqa','project_subset')
+    subset_dir = os.path.join(os.getcwd(),'multimodal-vqa','project_subset')
     train_subset_dir = os.path.join(subset_dir,'train_balanced_questions.csv')
     val_subset_dir = os.path.join(subset_dir,'val_balanced_questions.csv')
     test_subset_dir = os.path.join(subset_dir,'test_balanced_questions.csv')
 
+    train_subset_imageID = []
     train_subset_questions = []
     train_subset_answers = []
+    # train_subset_groundtruth_answers = []
+    val_subset_imageID = []
     val_subset_questions = []
+    val_subset_answers = []
     test_subset_questions = []
 
-    answer_distribution_top = {'yes': 1, 'no': 1,
-                                'left': 2, 'right': 2,
-                                'man': 3, 'woman': 3}
-    answer_distribution_list = ['yes\\no', 'left\\right', 'man\\woman']
-
+    # answer_distribution_top = {'yes': 1, 'no': 1,
+    #                             'left': 2, 'right': 2,
+    #                             'man': 3, 'woman': 3}
+    # answer_distribution_list = ['yes\\no', 'left\\right', 'man\\woman']
 
     with open(train_subset_dir) as csv_file:
         csv_reader = csv.reader(csv_file,delimiter=',')
         line_count = 0
         for row in csv_reader:
-            if line_count > 0 and str(row[8]) in answer_distribution_top.keys():
-                train_subset_questions.append(str(row[4]))
-                # train_subset_answers.append(str(row[8]))
-                train_subset_answers_index = answer_distribution_top[str(row[8])]
-                train_subset_answers.append(answer_distribution_list[train_subset_answers_index-1])
+            if line_count > 0:
+                train_subset_imageID.append(str(row[5])) # image ID
+                train_subset_questions.append(str(row[4])) # question
+                train_subset_answers.append(str(row[8])) # answer
             line_count += 1
+
+    with open(val_subset_dir) as csv_file:
+        csv_reader = csv.reader(csv_file,delimiter=',')
+        line_count = 0
+        for row in csv_reader:
+            if line_count > 0:
+                val_subset_imageID.append(str(row[5])) # image ID
+                val_subset_questions.append(str(row[4])) # question
+                val_subset_answers.append(str(row[8])) # answer
+            line_count += 1
+
+
+    # with open(train_subset_dir) as csv_file:
+    #     csv_reader = csv.reader(csv_file,delimiter=',')
+    #     line_count = 0
+    #     for row in csv_reader:
+    #         if line_count > 0 and str(row[8]) in answer_distribution_top.keys():
+    #             train_subset_questions.append(str(row[4]))
+    #             # train_subset_groundtruth_answers.append(str(row[8]))
+    #             train_subset_answers_index = answer_distribution_top[str(row[8])]
+    #             train_subset_answers.append(answer_distribution_list[train_subset_answers_index-1])
+    #         line_count += 1
 
     # with open(val_subset_dir) as csv_file:
     #     csv_reader = csv.reader(csv_file,delimiter=',')
@@ -120,11 +143,11 @@ if __name__ == "__main__":
     # deepset/sentence_bert
 
     device_name = "cuda:0"
-    model_name = "deepset/sentence_bert"
+    model_name = "roberta-base"
     baseBERTmodel = modelBERT(model_name, device_name)
 
 
-    totDataSize = len(train_subset_questions)
+    totDataSize = 1024
     batchSize = 32
     count = 0
     offsetVal = 0
@@ -133,6 +156,7 @@ if __name__ == "__main__":
 
     totFeatureArr = torch.zeros(1,768)
     ansArr = []
+    totQuestArr = []
 
     while(totSizeReached is False):
         print("While Loop Running: Count: " + str(count) + " out of " + str(totDataSize))
@@ -146,6 +170,7 @@ if __name__ == "__main__":
             answer = train_subset_answers[count]
             # print(question)
             questArr.append(question)
+            totQuestArr.append(question)
             ansArr.append(answer)
             count+=1
             if count >= totDataSize or count >= sizeKeys-1:
@@ -161,15 +186,62 @@ if __name__ == "__main__":
 
     totFeatureArr = totFeatureArr[1:,:]
 
-    m = TSNE(learning_rate = 40)
-    tsne_features = m.fit_transform(totFeatureArr.numpy())
-    tsne_x = tsne_features[:,0]
-    tsne_y = tsne_features[:,1]
+    pca = PCA(n_components=50)
+    question_rep_pca = pca.fit_transform(totFeatureArr)
 
-    sns.scatterplot(x=tsne_x, y=tsne_y, hue=ansArr)
-    plt.legend(answer_distribution_list)
-    plt.title('T-SNE diagram of ' + model_name + " representations on GQA training questions")
+
+
+    tsne_reps = TSNE(n_components=2, random_state=0, verbose=1).fit_transform(question_rep_pca)
+    kmeans = KMeans(n_clusters=10)
+    labels = kmeans.fit_predict(tsne_reps)
+    centroids = kmeans.cluster_centers_
+
+    df_points = pd.DataFrame(tsne_reps, columns=['x','y'])
+    df_points["labels"] = labels
+    df_centroids = pd.DataFrame(centroids, columns=['x','y'])
+    sns.set_theme(style="white", palette=None)
+    axs = sns.relplot(data=df_points, x = "x", y = "y", hue = "labels", palette = "colorblind")
+    axs._legend.remove()
+
+    plt.scatter(centroids[:,0], centroids[:,1], s = 40, color='k')
+    plt.title('RoBERTa model T-SNE plot of question embeddings')
     plt.show()
+
+
+    k = 6
+    topk = []
+    centroid_idxs = []
+    for centre in centroids:
+        distances = []
+        for i, point in enumerate(tsne_reps):
+            if point[0] == centre[0] and point[1] == centre[1]:
+                centroid_idxs.append(i)
+            distances.append((i, (point[0] - centre[0]) ** 2 + (point[1] - centre[1]) ** 2))
+        distances.sort(key=lambda tup: tup[1])
+        distances = distances[:k]
+        topk.append(distances)
+
+    # m = TSNE(learning_rate = 40)
+    # tsne_features = m.fit_transform(totFeatureArr.numpy())
+    # tsne_x = tsne_features[:,0]
+    # tsne_y = tsne_features[:,1]
+
+    # sns.scatterplot(x=tsne_x, y=tsne_y, hue=ansArr)
+    # # plt.legend(answer_distribution_list)
+    # plt.title('T-SNE diagram of ' + model_name + " representations on GQA training questions")
+    # plt.show()
+
+    with open("train_deepset-sentencebert_clusters.txt", "w+") as f:
+        for i, val in enumerate(topk):
+            f.write("Cluster "+ str(i + 1) + "\n")
+            for idx, _ in val:
+                f.write(totQuestArr[idx]+ "\t" + ansArr[idx]+"\n")
+
+    # sample_str = []
+    # for val in topk:
+    #     for idx, _ in val:
+    #         sample_str.append(totQuestArr[idx])
+    #     break
 
 
 

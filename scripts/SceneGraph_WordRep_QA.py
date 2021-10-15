@@ -56,29 +56,30 @@ class scenegraph_question_model(nn.Module):
         # fully connected layer output
         self._answerVocabSize = answerVocabSize
         # self._concatenatedSize = self._sceneGraph_OutputSize + 768
-        self._concatenatedSize = 768
+        self._concatenatedSize = self._sceneGraph_OutputSize
         self.fullyconnected1 = nn.Linear(self._concatenatedSize, self._answerVocabSize)
 
     def forward(self, sceneGraphVect, questionStrVar):
-        # TODO encode questionVar
-        questionEmbedding = self.feature_extraction(questionStrVar)
-        questionEmbedding = questionEmbedding[1] # (batch_size, 768)
+        # # TODO encode questionVar
+        # questionEmbedding = self.feature_extraction(questionStrVar)
+        # questionEmbedding = questionEmbedding[1] # (batch_size, 768)
 
-        # # TODO encode sceneGraphVar
-        # # Tokenizer Vocab Siz
-        # sceneGraphEmbedding_unpadded = self.tokenizeInput(sceneGraphVect).data['input_ids'].to(self.device_name)
-        # sceneGraphEmbedding_padded = torch.ones(sceneGraphEmbedding_unpadded.shape[0],self._max_length)*self.wordVocabSize
-        # sceneGraphEmbedding_padded = sceneGraphEmbedding_padded.to(self.device_name)
-        # sceneGraphEmbedding_padded[:,:sceneGraphEmbedding_unpadded.shape[1]] = sceneGraphEmbedding_unpadded
-        # sceneGraphEmbedding_padded = self.sceneGraphEmbedding(sceneGraphEmbedding_padded.long())
-        # # sceneGraphEmbedding_padded = torch.sum(sceneGraphEmbedding_padded, dim=1)
-        # sceneGraphEmbedding_padded = torch.squeeze(sceneGraphEmbedding_padded, dim = 1)
+        # TODO encode sceneGraphVar
+        # Tokenizer Vocab Siz
+        sceneGraphEmbedding_unpadded = self.tokenizeInput(sceneGraphVect).data['input_ids'].to(self.device_name)
+        sceneGraphEmbedding_padded = torch.ones(sceneGraphEmbedding_unpadded.shape[0],self._max_length)*self.wordVocabSize
+        sceneGraphEmbedding_padded = sceneGraphEmbedding_padded.to(self.device_name)
+        sceneGraphEmbedding_padded[:,:sceneGraphEmbedding_unpadded.shape[1]] = sceneGraphEmbedding_unpadded
+        sceneGraphEmbedding_padded = self.sceneGraphEmbedding(sceneGraphEmbedding_padded.long())
+        # sceneGraphEmbedding_padded = torch.sum(sceneGraphEmbedding_padded, dim=1)
+        sceneGraphEmbedding_padded = torch.squeeze(sceneGraphEmbedding_padded, dim = 1)
 
 
 
         # # TODO concatenate the two representations
         # concateVect = torch.cat((sceneGraphEmbedding_padded, questionEmbedding), 1)
-        concateVect = questionEmbedding
+        # concateVect = questionEmbedding
+        concateVect = sceneGraphEmbedding_padded
 
         # TODO pass concatenation through fully connected layer
         output = self.fullyconnected1(concateVect)
@@ -110,7 +111,7 @@ if __name__ == "__main__":
     path_parent = os.chdir(os.path.dirname(os.getcwd()))
     print(os.getcwd())
 
-    subset_dir = os.path.join(os.getcwd(),'gqa','project_subset')
+    subset_dir = os.path.join(os.getcwd(),'multimodal-vqa','project_subset')
     train_subset_dir = os.path.join(subset_dir,'train_balanced_questions.csv')
     val_subset_dir = os.path.join(subset_dir,'val_balanced_questions.csv')
 
@@ -143,7 +144,7 @@ if __name__ == "__main__":
             line_count += 1
 
     # open json files for scene graphs
-    scenegraphs_subset_dir = os.path.join(os.getcwd(),'gqa','sceneGraphs')
+    scenegraphs_subset_dir = os.path.join(os.getcwd(),'multimodal-vqa','sceneGraphs')
     train_scenegraphs_dir = os.path.join(scenegraphs_subset_dir,'train_sceneGraphs.json')
     val_scenegraphs_dir = os.path.join(scenegraphs_subset_dir,'val_sceneGraphs.json')
 
@@ -222,8 +223,8 @@ if __name__ == "__main__":
     weight_decay = 1e-4
     word_lr = 0.8
     fc_lr = 0.01
-    # optimizer_word = torch.optim.SGD(model.sceneGraphEmbedding.parameters(), momentum = momentum, lr = word_lr, weight_decay = weight_decay)
-    optimizer_softmax = torch.optim.SGD(model.fullyconnected1.parameters(), momentum = momentum, lr = fc_lr, weight_decay = weight_decay)
+    optimizer_word = torch.optim.SGD(model.sceneGraphEmbedding.parameters(), momentum = momentum, lr = word_lr, weight_decay = weight_decay)
+    # optimizer_softmax = torch.optim.SGD(model.fullyconnected1.parameters(), momentum = momentum, lr = fc_lr, weight_decay = weight_decay)
     lossFunc = nn.CrossEntropyLoss().to(device_name)
 
 
@@ -277,15 +278,15 @@ if __name__ == "__main__":
             predicted_answers = torch.argmax(softmaxFunc(output), dim = 1)
             train_acc += torch.sum(ansArr == predicted_answers)            
 
-            # optimizer_word.zero_grad()
-            optimizer_softmax.zero_grad()
+            optimizer_word.zero_grad()
+            # optimizer_softmax.zero_grad()
 
             loss = lossFunc(output, ansArr)
 
             loss.backward()
 
-            # optimizer_word.step()
-            optimizer_softmax.step()
+            optimizer_word.step()
+            # optimizer_softmax.step()
 
             if totSizeReached is True:
                 train_batchArr.append(globalCount/1000.0)
@@ -341,13 +342,13 @@ if __name__ == "__main__":
             model.train()
             print("Training -- Epoch: " + str(epoch) + " | Batch: " + str(offsetVal))
 
-    save_pkl_title = "SimpleQAModel_QuestionOnly_roberta-base_01.pkl"
+    save_pkl_title = "SimpleQAModel_SceneGraphWordsOnly_roberta-base_01.pkl"
     pkl_dict = {}
     parameters = {}
     parameters['optimizer'] = 'SGD with Momentum'
     parameters['momentum'] = momentum
     parameters['weight_decay'] = weight_decay
-    parameters['fc_lr'] = fc_lr
+    parameters['word_lr'] = word_lr
     pkl_dict['parameters'] = parameters
     pkl_dict['val_batchArr'] = val_batchArr
     pkl_dict['val_accArr'] = val_accArr
@@ -374,3 +375,5 @@ if __name__ == "__main__":
     # plt.show()
 
     print("Done.")
+
+    # TODO plot k-means cluster and see top 4-5 questions and see how they're performing
