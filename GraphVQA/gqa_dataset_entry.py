@@ -53,6 +53,7 @@ SPLIT_TO_PROGRAMMED_QUESTION_PATH_TABLE = {
 class GQA_gt_sg_feature_lookup:
 
     # GT Scene Graph Vocab: to preprocess and numerlicalize text
+    # Feng Xiang changed torchtext.data.Field to torchtext.legacy.data.Field
     SG_ENCODING_TEXT = torchtext.data.Field(sequential=True, tokenize="spacy",
                                             init_token="<start>", eos_token="<end>",
                                             include_lengths=False,
@@ -387,6 +388,7 @@ class GQATorchDataset(torch.utils.data.Dataset):
     MAX_EXECUTION_STEP = 5
 
     # QA vocab: to preprocess and numerlicalize text
+    # Feng Xiang changed torchtext.data.Field to torchtext.legacy.data.Field
     TEXT = torchtext.data.Field(sequential=True,
                                 tokenize="spacy",
                                 init_token="<start>",
