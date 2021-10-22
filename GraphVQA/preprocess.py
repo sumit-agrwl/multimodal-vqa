@@ -19,6 +19,8 @@ import numpy as np
 import random
 import argparse
 
+from pathlib import Path
+
 
 ROOT_DIR = Constants.ROOT_DIR
 # PACKAGE_DIR = ROOT_DIR / 'DialogGQA'
@@ -597,15 +599,22 @@ def preprocess(raw_data, output_path, dataset_this=None, sg_data=None):
 # arg = sys.argv[1]
 # if arg == 'create_balanced_programs': # Modified by WX
 if True:
+    use_subset = True
+    if use_subset is True:
+        subset_str = "subset_"
+    else:
+        subset_str = "_"
+
     parser = argparse.ArgumentParser('Explainable GQA training and evaluation script',
                                      parents=[get_args_parser()])
     args = parser.parse_args()
     print(args.val_all)
     
-    with open(ROOT_DIR / 'GraphVQA/questions/original/testdev_balanced_questions.json') as f:
-        # total 12578 programs
-        raw_dev_data = json.load(f)
-    preprocess(raw_dev_data, ROOT_DIR / 'GraphVQA/questions/testdev_balanced_programs.json')
+    if use_subset is False:
+        with open(ROOT_DIR / 'GraphVQA/questions/original/testdev_balanced_questions.json') as f:
+            # total 12578 programs
+            raw_dev_data = json.load(f)
+        preprocess(raw_dev_data, ROOT_DIR / 'GraphVQA/questions/testdev_balanced_programs.json')
 
     # from gqa_dataset.visual_genome import VG
     # dataset_this = VG(
@@ -619,11 +628,11 @@ if True:
     dataset_this = None
 
     # fileStr = SCENEGRAPHS / "val_sceneGraphs.json"
-    fileStr = ROOT_DIR / 'GraphVQA/sceneGraphs/val_sceneGraphs.json'
+    fileStr = ROOT_DIR / Path('GraphVQA/sceneGraphs/val'+subset_str+'sceneGraphs.json')
     with open(fileStr) as f:
         sg_data = json.load(f)
-    val_questions_path = ROOT_DIR / 'GraphVQA/questions/original/val_balanced_questions.json'
-    val_programs_path = ROOT_DIR / 'GraphVQA/questions/val_balanced_programs.json'
+    val_questions_path = ROOT_DIR / Path('GraphVQA/questions/original/val_balanced'+subset_str+'questions.json')
+    val_programs_path = ROOT_DIR / Path('GraphVQA/questions/val_balanced'+subset_str+'programs.json')
     # val_questions_path = ROOT_DIR / 'GraphVQA/questions/original/val_balanced_masked_questions.json'
     # val_programs_path = ROOT_DIR / 'GraphVQA/questions/val_balanced_masked_programs.json'
     with open(val_questions_path) as f:
@@ -652,11 +661,11 @@ if True:
     dataset_this = None 
 
     # fileStr = SCENEGRAPHS / "train_sceneGraphs.json"
-    fileStr = ROOT_DIR / 'GraphVQA/sceneGraphs/train_sceneGraphs.json'
+    fileStr = ROOT_DIR / Path('GraphVQA/sceneGraphs/train'+subset_str+'sceneGraphs.json')
     with open(fileStr) as f:
         sg_data = json.load(f)
-    train_questions_path = ROOT_DIR / 'GraphVQA/questions/original/train_balanced_questions.json'
-    train_programs_path = ROOT_DIR / 'GraphVQA/questions/train_balanced_programs.json'
+    train_questions_path = ROOT_DIR / Path('GraphVQA/questions/original/train_balanced'+subset_str+'questions.json')
+    train_programs_path = ROOT_DIR / Path('GraphVQA/questions/train_balanced'+subset_str+'programs.json')
     # train_questions_path = ROOT_DIR / 'GraphVQA/questions/original/train_balanced_masked_questions.json'
     # train_programs_path = ROOT_DIR / 'GraphVQA/questions/train_balanced_masked_programs.json'
     with open(train_questions_path) as f:

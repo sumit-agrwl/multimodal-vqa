@@ -9,3 +9,13 @@ embed_T5.pkl
 questions1.2.zip
 sceneGraphs.zip
 .DS_Store
+GraphVQA/questions/*
+GraphVQA/sceneGraphs/*
+GraphVQA/val_choices.json
+GraphVQA/your_outputdir/*
+GraphVQA/outputdir/*
+GraphVQA/archive/*
+GraphVQA/.vector_cache/*
+GraphVQA/__pycache__/*
+GraphVQA/graph_utils/__pycache__/*
+GraphVQA/util/__pycache__/*

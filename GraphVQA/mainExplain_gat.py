@@ -98,6 +98,9 @@ def get_args_parser():
                         help='path to latest checkpoint (default: none)')
     parser.add_argument('-e', '--evaluate', dest='evaluate', action='store_true',
                         help='evaluate model on validation set')
+    parser.add_argument('-ts', '--train_set', default='train_unbiased', type=str, 
+                        help='options are either train_unbiased or train_subset. default is '
+                        'train_unbiased') # Feng Xiang
     parser.add_argument('--evaluate_sets', default=['val_unbiased'], nargs='+',
                         help='Data sets/splits to perform evaluation, e.g. '
                              'val_unbiased, testdev etc. Multiple sets/splits '
@@ -189,7 +192,7 @@ def main(args):
     if not args.evaluate:
         # build_vocab_flag=True, # Takes a long time to build a vocab
         train_dataset = GQATorchDataset(
-            split='train_unbiased',
+            split=args.train_set,
             build_vocab_flag=False,
             load_vocab_flag=False
         )

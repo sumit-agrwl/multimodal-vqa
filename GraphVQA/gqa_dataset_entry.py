@@ -31,18 +31,24 @@ SCENEGRAPHS = ROOT_DIR.joinpath('GraphVQA', 'sceneGraphs')  # SCENEGRAPHS = ROOT
 EXPLAINABLE_GQA_DIR = ROOT_DIR.joinpath('GraphVQA')
 
 SPLIT_TO_H5_PATH_TABLE = {
+    'train_subset': '/home/ubuntu/GQA/objectDetection/extract/save_trainsubset_feature.h5',
+    'val_subset': '/home/ubuntu/GQA/objectDetection/extract/save_valsubset_feature.h5',
     'train_unbiased': '/home/ubuntu/GQA/objectDetection/extract/save_train_feature.h5',
     'val_unbiased': '/home/ubuntu/GQA/objectDetection/extract/save_test_feature.h5',
     'testdev': '/home/ubuntu/GQA/objectDetection/extract/testdev_feature.h5',
     'debug': '/home/ubuntu/GQA/objectDetection/extract/save_train_feature.h5',
 }
 SPLIT_TO_MODE_TABLE = {
+    'train_subset': 'train',
+    'val_subset': 'test',
     'train_unbiased': 'train',
     'val_unbiased': 'test',
     'testdev': 'testdev',
     'debug': 'train',
 }
 SPLIT_TO_PROGRAMMED_QUESTION_PATH_TABLE = {
+     'train_subset': str(ROOT_DIR / 'GraphVQA/questions/train_balancedsubset_programs.json'),
+     'val_subset': str(ROOT_DIR / 'GraphVQA/questions/val_balancedsubset_programs.json'),
      'train_unbiased': str(ROOT_DIR / 'GraphVQA/questions/train_balanced_programs.json'),
      'val_unbiased': str(ROOT_DIR / 'GraphVQA/questions/val_balanced_programs.json'),
      'testdev': str(ROOT_DIR / 'GraphVQA/questions/testdev_balanced_programs.json'),
@@ -72,19 +78,19 @@ class GQA_gt_sg_feature_lookup:
         ##################################
         # load data based on split
         ##################################
-        if split in ['debug', 'train_unbiased']:
+        if split in ['debug', 'train_unbiased', 'train_subset']: # Feng Xiang
 
             if split == 'debug':
                 with open(ROOT_DIR / 'GraphVQA' / 'debug_sceneGraphs.json') as f:
                     self.sg_json_data = json.load(f)
 
-            elif split == 'train_unbiased':
+            elif split == 'train_unbiased' or split == 'train_subset': # Feng Xiang
                 with open(SCENEGRAPHS / 'train_sceneGraphs.json') as f:
                     self.sg_json_data = json.load(f)
         else:
-            assert split in ['val_unbiased', 'testdev', 'val_all']
+            assert split in ['val_unbiased','val_subset', 'testdev', 'val_all'] # Feng Xiang
 
-            if split == 'val_unbiased' or split == 'val_all':
+            if split == 'val_unbiased' or split == 'val_all' or split == 'val_subset': # Feng xiang
                 with open(SCENEGRAPHS / 'val_sceneGraphs.json') as f:
                     self.sg_json_data = json.load(f)
 
@@ -420,6 +426,7 @@ class GQATorchDataset(torch.utils.data.Dataset):
     ):
 
         self.split = split
+        print("[FENG XIANG] Split: " + split)
         assert split in SPLIT_TO_H5_PATH_TABLE
 
         ##################################
@@ -449,7 +456,7 @@ class GQATorchDataset(torch.utils.data.Dataset):
         with open(programmed_question_path) as infile:
             self.data = json.load(infile)
 
-        if split in ['debug', 'train_unbiased']:
+        if split in ['debug', 'train_unbiased', 'train_subset']: # Feng Xiang
 
             ##################################
             # build qa vocab
@@ -460,7 +467,7 @@ class GQATorchDataset(torch.utils.data.Dataset):
                 # self.build_qa_vocab()
             self.load_qa_vocab()
         else:
-            assert split in ['val_unbiased', 'testdev', 'val_all']
+            assert split in ['val_unbiased', 'val_subset', 'testdev', 'val_all'] # Feng Xiang
             ##################################
             # load qa vocab
             ##################################
