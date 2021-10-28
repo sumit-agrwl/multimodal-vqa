@@ -866,6 +866,7 @@ def validate(val_loader, model, criterion, args, FAST_VALIDATE_FLAG=False, DUMP_
             if DUMP_RESULT:
 
                 short_answer_pred_score, short_answer_pred_label = short_answer_logits.max(1)
+                import pdb; pdb.set_trace();
                 short_answer_pred_score, short_answer_pred_label = short_answer_pred_score.cpu(), short_answer_pred_label.cpu()
                 for batch_idx in range( this_batch_size ):
                     ##################################

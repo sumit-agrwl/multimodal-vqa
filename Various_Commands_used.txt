@@ -1,0 +1,8 @@
+-----
+---GraphVQA---
+
+python mainExplain_gat.py --workers=0 --batch-size=75 --evaluate --resume=outputdir/pretrained_checkpoint.pth --evaluate_sets='val_subset' --output_dir='./pretrained_outputdir/'
+
+---MAC Network---
+(for the whole dataset)
+python main.py --expName "gqaExperiment" --train --testedNum 10000 --epochs 2 --netLength 4 @configs/gqa/gqa.txt

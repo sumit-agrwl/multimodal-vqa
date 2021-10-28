@@ -36,6 +36,7 @@ SPLIT_TO_H5_PATH_TABLE = {
     'train_unbiased': '/home/ubuntu/GQA/objectDetection/extract/save_train_feature.h5',
     'val_unbiased': '/home/ubuntu/GQA/objectDetection/extract/save_test_feature.h5',
     'testdev': '/home/ubuntu/GQA/objectDetection/extract/testdev_feature.h5',
+    'testdev_subset': '/home/ubuntu/GQA/objectDetection/extract/testdevsubset_feature.h5',
     'debug': '/home/ubuntu/GQA/objectDetection/extract/save_train_feature.h5',
 }
 SPLIT_TO_MODE_TABLE = {
@@ -44,11 +45,13 @@ SPLIT_TO_MODE_TABLE = {
     'train_unbiased': 'train',
     'val_unbiased': 'test',
     'testdev': 'testdev',
+    'testdev_subset': 'testdev', 
     'debug': 'train',
 }
 SPLIT_TO_PROGRAMMED_QUESTION_PATH_TABLE = {
      'train_subset': str(ROOT_DIR / 'GraphVQA/questions/train_balancedsubset_programs.json'),
      'val_subset': str(ROOT_DIR / 'GraphVQA/questions/val_balancedsubset_programs.json'),
+     'testdev_subset': str(ROOT_DIR / 'GraphVQA/questions/test_balancedsubset_programs.json'), 
      'train_unbiased': str(ROOT_DIR / 'GraphVQA/questions/train_balanced_programs.json'),
      'val_unbiased': str(ROOT_DIR / 'GraphVQA/questions/val_balanced_programs.json'),
      'testdev': str(ROOT_DIR / 'GraphVQA/questions/testdev_balanced_programs.json'),
