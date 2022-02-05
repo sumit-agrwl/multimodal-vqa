@@ -1,0 +1,7 @@
+# ninja log v5
+1	24703	1637957527426689113	/home/ubuntu/scene_graph_generation/Scene-Graph-Benchmark.pytorch/build/temp.linux-x86_64-3.6/home/ubuntu/scene_graph_generation/Scene-Graph-Benchmark.pytorch/maskrcnn_benchmark/csrc/cpu/nms_cpu.o	28082e442a49ce00
+1	25911	1637957528634689734	/home/ubuntu/scene_graph_generation/Scene-Graph-Benchmark.pytorch/build/temp.linux-x86_64-3.6/home/ubuntu/scene_graph_generation/Scene-Graph-Benchmark.pytorch/maskrcnn_benchmark/csrc/cpu/ROIAlign_cpu.o	264f442410e0ab8
+0	26369	1637957529090689967	/home/ubuntu/scene_graph_generation/Scene-Graph-Benchmark.pytorch/build/temp.linux-x86_64-3.6/home/ubuntu/scene_graph_generation/Scene-Graph-Benchmark.pytorch/maskrcnn_benchmark/csrc/vision.o	be2f1ccd16d5f53b
+1	15956	1637957546266698788	/home/ubuntu/scene_graph_generation/Scene-Graph-Benchmark.pytorch/build/temp.linux-x86_64-3.6/home/ubuntu/scene_graph_generation/Scene-Graph-Benchmark.pytorch/maskrcnn_benchmark/csrc/cpu/ROIAlign_cpu.o	b98fbb9235779a2a
+1	21606	1637957551914701688	/home/ubuntu/scene_graph_generation/Scene-Graph-Benchmark.pytorch/build/temp.linux-x86_64-3.6/home/ubuntu/scene_graph_generation/Scene-Graph-Benchmark.pytorch/maskrcnn_benchmark/csrc/cpu/nms_cpu.o	1631bee852f81e30
+1	25896	1637957556202703889	/home/ubuntu/scene_graph_generation/Scene-Graph-Benchmark.pytorch/build/temp.linux-x86_64-3.6/home/ubuntu/scene_graph_generation/Scene-Graph-Benchmark.pytorch/maskrcnn_benchmark/csrc/vision.o	ae900c691af3cb24
